@@ -1,0 +1,11 @@
+import { contextBridge } from 'electron';
+
+// Expose a safe, minimal API to the renderer process here.
+// Example:
+// contextBridge.exposeInMainWorld('electronAPI', {
+//   getVersion: () => process.versions.electron,
+// });
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  platform: process.platform,
+});
