@@ -6,6 +6,8 @@ const electron_1 = require("electron");
 // contextBridge.exposeInMainWorld('electronAPI', {
 //   getVersion: () => process.versions.electron,
 // });
-electron_1.contextBridge.exposeInMainWorld('electronAPI', {
+electron_1.contextBridge.exposeInMainWorld("electronAPI", {
     platform: process.platform,
+    checkfiles: () => electron_1.ipcRenderer.invoke("checkfiles"),
+    changeDir: (data) => electron_1.ipcRenderer.invoke("changeDir", data),
 });

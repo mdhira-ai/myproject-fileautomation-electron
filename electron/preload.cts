@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from "electron";
 
 // Expose a safe, minimal API to the renderer process here.
 // Example:
@@ -6,6 +6,8 @@ import { contextBridge } from 'electron';
 //   getVersion: () => process.versions.electron,
 // });
 
-contextBridge.exposeInMainWorld('electronAPI', {
+contextBridge.exposeInMainWorld("electronAPI", {
   platform: process.platform,
+  checkfiles: () => ipcRenderer.invoke("checkfiles"),
+  changeDir: (data: any) => ipcRenderer.invoke("changeDir", data),
 });
