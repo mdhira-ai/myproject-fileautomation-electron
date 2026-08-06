@@ -53,3 +53,8 @@ ipcMain.handle("checkfiles", async () => {
 ipcMain.handle("changeDir", async (_event, folderName) => {
   return Getfiles.change_dir(folderName);
 });
+
+
+ipcMain.handle("filesize",(_e,filepath) => {
+  return Getfiles.File_size(filepath)
+})

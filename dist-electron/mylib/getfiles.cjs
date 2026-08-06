@@ -92,5 +92,15 @@ class Getfiles {
         }
         return this.create();
     }
+    static async File_size(filepath) {
+        try {
+            const stats = await (0, promises_1.stat)(this.getfile_path(filepath));
+            console.log(`File size: ${stats.size} bytes`);
+            return stats.size;
+        }
+        catch (error) {
+            console.error("Error reading file size:", error);
+        }
+    }
 }
 exports.Getfiles = Getfiles;

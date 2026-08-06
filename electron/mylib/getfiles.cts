@@ -63,4 +63,14 @@ export class Getfiles {
 
     return this.create();
   }
+
+  public static async File_size(filepath: string) {
+    try {
+      const stats = await stat(this.getfile_path(filepath));
+      console.log(`File size: ${stats.size} bytes`);
+      return stats.size;
+    } catch (error) {
+      console.error("Error reading file size:", error);
+    }
+  }
 }

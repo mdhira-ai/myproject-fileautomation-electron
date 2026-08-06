@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   platform: process.platform,
   checkfiles: () => ipcRenderer.invoke("checkfiles"),
   changeDir: (data: any) => ipcRenderer.invoke("changeDir", data),
+  check_file_size: (data: any) => ipcRenderer.invoke("filesize", data),
 });

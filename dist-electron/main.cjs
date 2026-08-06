@@ -49,3 +49,6 @@ electron_1.ipcMain.handle("checkfiles", async () => {
 electron_1.ipcMain.handle("changeDir", async (_event, folderName) => {
     return getfiles_cjs_1.Getfiles.change_dir(folderName);
 });
+electron_1.ipcMain.handle("filesize", (_e, filepath) => {
+    return getfiles_cjs_1.Getfiles.File_size(filepath);
+});

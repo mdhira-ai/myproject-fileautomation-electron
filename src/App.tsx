@@ -1,106 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import { Button } from "./components/ui/button";
-import { Folder } from "lucide-react";
-
-interface CheckFilesResult {
-  files: string[];
-  folders: string[];
-  currentfolder_name: string;
-}
-
-interface ElectronAPI {
-  platform: string;
-  checkfiles: () => Promise<CheckFilesResult>;
-  changeDir: (folderName: string) => Promise<CheckFilesResult>;
-}
-
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
+import { CallAPi } from "./lib/mycall";
+import For_folders from "./mcomponents/For_folders";
+import For_files from "./mcomponents/For_files";
 
 function App() {
   const [mfiles, setmfiles] = useState<string[]>([]);
   const [mfolders, setmfolders] = useState<string[]>([]);
   const [currentfolder_name, setcurrentfolder_name] = useState<string>();
+  const [selectedfile_size, setselectedfile_size] = useState<number>();
 
-  useEffect(() => {
-    void window.electronAPI
-      ?.checkfiles?.()
-      .then((files) => {
-        setmfiles(files?.files);
-        setmfolders(files?.folders);
-        setcurrentfolder_name(files.currentfolder_name);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const formatFileSize = (size?: number) => {
+    if (size == null) return "";
+    const units = ["bytes", "KB", "MB", "GB", "TB"];
+    let value = size;
+    let index = 0;
+
+    while (value >= 1024 && index < units.length - 1) {
+      value /= 1024;
+      index += 1;
+    }
+
+    return index === 0
+      ? `${value} ${units[index]}`
+      : `${value.toFixed(2)} ${units[index]}`;
+  };
+
+  const mycall = useMemo(() => {
+    return new CallAPi();
   }, []);
 
-  function handle_changeDir(filename: string) {
-    window.electronAPI
-      ?.changeDir(filename)
-      .then((files) => {
-        setmfiles(files?.files);
-        setmfolders(files?.folders);
-        setcurrentfolder_name(files?.currentfolder_name);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+  useEffect(() => {
+    mycall.first_load_check(setmfiles, setmfolders, setcurrentfolder_name);
+  }, [mycall]);
 
   return (
     <>
       <title>lab</title>
       <div className="flex select-none divide-x max-h-fit min-h-dvh   divide-gray-700 ">
-        <div className="max-w-50 min-w-50   flex flex-col gap-3 bg-slate-950/60 p-4 rounded-sm">
-          <label className="rounded-sm overflow-hidden bg-slate-800 px-3 py-2 text-xs uppercase tracking-[0.25em] text-slate-300 border border-amber-900">
-            {currentfolder_name}
-          </label>
+        <For_folders
+          currentfolder_name={currentfolder_name}
+          mycall={mycall}
+          mfolders={mfolders}
+          setmfiles={setmfiles}
+          setmfolders={setmfolders}
+          setcurrentfolder_name={setcurrentfolder_name}
+        />
 
-          <div className="rounded-none flex flex-col  ">
-            <Button
-              onClick={() => handle_changeDir("..")}
-              className={"rounded-none bg-slate-900 justify-start  "}
-            >
-              <span>..</span>
-            </Button>
-          </div>
+        <For_files mfiles={mfiles} setfilesize={setselectedfile_size} />
 
-          <div className="rounded-none max-h-[calc(100vh-8rem)] min-h-0 flex-1 gap-2 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-700/70 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full flex flex-col  ">
-            {mfolders?.map((f, index) => (
-              <Button
-                key={index}
-                onClick={() => handle_changeDir(f)}
-                className={"rounded-none bg-slate-900 justify-start  "}
-              >
-                <Folder />
-                <span>{f}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <div className="w-full flex flex-col gap-3 bg-slate-950/60 p-4 rounded-sm">
-          <label className="rounded-sm bg-slate-800 px-3 py-2 text-xs uppercase tracking-[0.25em] text-slate-300 border border-amber-900">
-            files
-          </label>
-          <div className="flex flex-row flex-wrap gap-3">
-            {mfiles?.map((t) => (
-              <Button
-                key={t}
-                className=" max-w-56 min-w-40 overflow-hidden  bg-slate-900 px-4 py-5 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 flex flex-col items-start gap-3"
-              >
-                <div className="flex items-center gap-2 text-slate-100">
-                  <Folder className="h-5 w-5 text-amber-300" />
-                  <span className="font-semibold truncate">{t}</span>
-                </div>
-              </Button>
-            ))}
-          </div>
+        <div className="absolute right-0 bottom-0">
+          <p>{selectedfile_size ? formatFileSize(selectedfile_size) : ""} </p>
         </div>
       </div>
     </>
